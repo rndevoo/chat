@@ -2,44 +2,56 @@
 
 /**
  * @overview
- * The HTTP server. It handles the /messages endpoint.
+ * The microservice's main service.
  *
- * @author Diego Stratta <strattadb@gmail.com>
+ * It's a WebSocket server. It handles the realtime communication
+ * and storage of messages in the database.
+ *
+ * In production, we start the server directly here, for the env variables are
+ * set in the web service, e.g. Heroku.
+ *
+ * In development, we export the start function @see {@link start} and call it
+ * there @see {@link index.js} after loading all environmental variables.
+ *
+ * @author Diego Stratta <strattadb@gmail>
  * @license GPL-3.0
  */
 'use strict';
 
-import http from 'http';
+import WebSocket from 'ws';
 
-import Koa from 'koa';
-import koaLogger from 'koa-logger';
-import bodyParser from 'koa-bodyparser';
-import Boom from 'boom';
+import logger from './config/winston';
+import { default as db, mongoConnectionString } from './config/db';
 
-import queryParser from './middleware/queryParser';
-import errorHandler from './middleware/errorHandler';
-import router from './router';
-
-const app = new Koa();
-
-// Plug in the middleware.
-app
-  .use(errorHandler)
-  .use(koaLogger())
-  .use(queryParser)
-  .use(bodyParser())
-  .use(router.routes())
-  .use(router.allowedMethods({
-    throw: true,
-    notImplemented: () => Boom.notImplemented(),
-    methodNotAllowed: () => Boom.methodNotAllowed(),
-  }));
-
-// We need the server created with the http module in order to use ws.
-const server = http.createServer(app.callback());
+const PORT = process.env.PORT || 8080;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 /**
- * We export the HTTP server to hook the ws server later in ws.js
- * @see {@link ws.js}
+ * In development we want to load env variables before we start the server.
  */
-export { server };
+if (NODE_ENV === 'production') {
+  start();
+}
+
+/**
+ * @name start
+ * @function
+ *
+ * @description
+ * Just a wrapper for initializing and starting the server.
+ */
+export default function start () {
+  // Connect to the MongoDB database.
+  db.open(mongoConnectionString);
+
+  // Create the WebSocket server instance and start listening.
+  const wss = new WebSocket.Server({
+    port: PORT,
+  }, () => {
+    logger.info(`Chat microservice's main server (WebSocket) running in ${NODE_ENV} mode on port ${PORT}`);
+  });
+
+  wss.on('connection', async (ws) => {
+    logger.info('websocket connection established.');
+  });
+}
