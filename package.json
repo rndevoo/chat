@@ -1,8 +1,8 @@
 {
-  "name": "letsmeet-messages",
+  "name": "chat",
   "version": "1.0.0",
-  "description": "rndevoo's messages microservice",
-  "main": "src/main.js",
+  "description": "rndevoo's chat microservice",
+  "main": "src/server.js",
   "scripts": {
     "build": "babel src -d dist",
     "serve:dev": "nodemon index.js --exec babel-node",
@@ -21,6 +21,8 @@
   "author": "Diego Stratta <strattadb@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "mongoose": "^4.9.7",
+    "winston": "^2.3.1",
     "ws": "^2.3.1"
   },
   "devDependencies": {
