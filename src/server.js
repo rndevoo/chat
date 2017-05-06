@@ -4,8 +4,7 @@
  * @overview
  * The microservice's main service.
  *
- * It's a WebSocket server. It handles the realtime communication
- * and storage of messages in the database.
+ * It's a WebSocket server. It handles the realtime communication of the app.
  *
  * In production, we start the server directly here, for the env variables are
  * set in the web service, e.g. Heroku.
@@ -21,7 +20,6 @@
 import WebSocket from 'ws';
 
 import logger from './config/winston';
-import { default as db, mongoConnectionString } from './config/db';
 
 const PORT = process.env.PORT || 8080;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -40,10 +38,7 @@ if (NODE_ENV === 'production') {
  * @description
  * Just a wrapper for initializing and starting the server.
  */
-export default function start () {
-  // Connect to the MongoDB database.
-  db.open(mongoConnectionString);
-
+export function start () {
   // Create the WebSocket server instance and start listening.
   const wss = new WebSocket.Server({
     port: PORT,
