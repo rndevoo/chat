@@ -19,6 +19,8 @@
 
 import WebSocket from 'ws';
 
+import { connectionHandler } from './handlers/connection';
+
 import logger from './config/winston';
 
 const PORT = process.env.PORT || 8080;
@@ -46,7 +48,5 @@ export function start () {
     logger.info(`Chat microservice's main server (WebSocket) running in ${NODE_ENV} mode on port ${PORT}`);
   });
 
-  wss.on('connection', async (ws) => {
-    logger.info('websocket connection established.');
-  });
+  wss.on('connection', connectionHandler);
 }
