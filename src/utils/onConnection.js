@@ -6,28 +6,55 @@
  */
 'use strict';
 
+import uuid from 'uuid/v4';
+
+import { channel } from '../config/rabbitmq';
+
 /**
- * @name getPreviousMessages
+ * @name validateUser
  * @function
  *
  * @description
- * Returns the list of previous messages between two users.
+ * Checks if the given authentication token is valid or not.
  *
- * @param {string} user1 - The user 1.
- * @param {string} user2 - The user 2.
+ * @param {Object} ws - The WebSocket instance.
  *
- * @returns {Promise<Array<Object>>} The list of messages.
+ * @returns {Promise<Object>} Object containing verified user information.
  */
-export async function getPreviousMessages (
-  user1: string,
-  user2: string,
-): Promise<Array<Object>> {
-  /**
-   * @todo Use RabbitMQ to talk to the corresponding microservice and
-   * get the list.
-   */
+export async function validateUser (ws: Object): Promise<Object> {
+  const authorizationHeader: string = ws.upgradeReq.headers.Authorization;
 
-  return messages;
+  const ch = await channel;
+
+  const queue = 'auth_validate';
+  const randomQueue: string = (await ch.assertQueue('', { exclusive: true })).queue;
+
+  // Create a correlation id.
+  const corr: string = uuid();
+
+  // Send the Authorization header to the queue.
+  ch.sendToQueue(queue, Buffer.from(authorizationHeader), {
+    correlationId: corr,
+    replyTo: randomQueue,
+  });
+
+  // Receive the response of the request.
+  const msg = await ch.consume(randomQueue);
+
+  // Check if the correlation id is the one we care about.
+  if (msg.properties.correlationId !== corr) {
+    throw new Error('Correlation ID didn\'t match.');
+  }
+
+  const response = JSON.parse(msg.content.toString());
+
+  // Check if the authorization header was valid.
+  if (!response.ok) {
+    throw new Error('Authorization error.');
+  }
+
+  // Response the user object.
+  return response.user;
 }
 
 /**
@@ -42,12 +69,31 @@ export async function getPreviousMessages (
  * @returns {Promise<Set<string>>} The set of ids of the allowed users.
  */
 export async function getAllowedUsers (userId: string): Promise<Set<string>> {
-  /**
-   * @todo Use RabbitMQ to talk to the corresponding microservice and
-   * get the list.
-   */
+  const ch = await channel;
 
-  const allowedUsers = new Set(users);
+  const queue = 'users_matches';
+  // Generate a random queue to reply to.
+  const randomQueue: string = (await ch.assertQueue('', { exclusive: true })).queue;
+
+  // Create a correlation ID.
+  const corr: string = uuid();
+
+  ch.sendToQueue(queue, Buffer.from(userId), {
+    correlationId: corr,
+    replyTo: randomQueue,
+  });
+
+  // Receive the response of the request.
+  const msg = await ch.consume(randomQueue);
+
+  // Check if the correlation id is the one we care about.
+  if (msg.properties.correlationId !== corr) {
+    throw new Error('Correlation ID didn\'t match.');
+  }
+
+  const response = JSON.parse(msg.content.toString());
+
+  const allowedUsers = new Set(response.users);
 
   return allowedUsers;
 }
