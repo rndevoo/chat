@@ -48,5 +48,8 @@ export function start () {
     logger.info(`Chat microservice's main server (WebSocket) running in ${NODE_ENV} mode on port ${PORT}`);
   });
 
-  wss.on('connection', connectionHandler);
+  // Store all connected clients here.
+  let clients: Map<string, Object> = new Map();
+
+  wss.on('connection', (ws) => connectionHandler(ws, clients));
 }
