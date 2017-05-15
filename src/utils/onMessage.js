@@ -39,7 +39,7 @@ export async function verifyRecipient (
  */
 export function isUserConnected (
   userId: string,
-  connectedUsers: Set<string>,
+  connectedUsers: Map<string, Object>,
 ): boolean {
   return connectedUsers.has(userId);
 }
@@ -54,17 +54,16 @@ export function isUserConnected (
  * It doesn't matter if the recipient isn't connected to the WebSocket server,
  * since it the message gets sent to the corresponding microservice to store it.
  *
- * @param {Object} ws - The WebSocket instance.
- * @param {string} to - The recipient's id.
  * @param {string} message - The message to send.
+ * @param {Object} recipientConnection - The WebSocket connection of the recipient.
  */
 export async function sendMessage (
-  ws: Object,
-  to: string,
   message: string,
-  allowedUsers: Set<string>,
+  recipientConnection: Object,
 ) {
-  /**
-   * @todo Do stuff.
-   */
+  const payload = {
+    type: 'message',
+    data: message,
+  };
+  recipientConnection.send(payload);
 }
