@@ -27,7 +27,9 @@ export async function validateUser (ws: Object): Promise<Object> {
   const ch = await channel;
 
   const queue = 'auth_validate';
-  const randomQueue: string = (await ch.assertQueue('', { exclusive: true })).queue;
+  const randomQueue: string = (await ch.assertQueue('', {
+    exclusive: true,
+  })).queue;
 
   // Create a correlation id.
   const corr: string = uuid();
@@ -52,6 +54,9 @@ export async function validateUser (ws: Object): Promise<Object> {
   if (!response.ok) {
     throw new Error('Authorization error.');
   }
+
+  // Add the user to the clients Map.
+  ws.clients.set(response.user.id, response);
 
   // Response the user object.
   return response.user;
