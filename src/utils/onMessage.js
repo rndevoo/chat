@@ -26,25 +26,6 @@ export async function verifyRecipient (
 }
 
 /**
- * @name isUserConnected
- * @function
- *
- * @description
- * Checks if the given user is connected to the WebSocket server.
- *
- * @param {string} userId - The id of the user to check connectivity.
- * @param {Set<string>} connectedUsers - The set of the connected users.
- *
- * @returns {boolean} True if the user is connected. False otherwise.
- */
-export function isUserConnected (
-  userId: string,
-  connectedUsers: Map<string, Object>,
-): boolean {
-  return connectedUsers.has(userId);
-}
-
-/**
  * @name sendMessage
  * @function
  *
@@ -63,7 +44,7 @@ export async function sendMessage (
 ) {
   const payload = {
     type: 'message',
-    data: message,
+    message,
   };
   recipientConnection.send(payload);
 }
