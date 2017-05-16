@@ -8,6 +8,8 @@
 
 import logger from '../config/winston';
 
+import { closeHandler } from './close';
+
 import {
   validateUser,
   getAllowedUsers,
@@ -15,7 +17,6 @@ import {
 
 import {
   verifyRecipient,
-  isUserConnected,
   sendMessage,
 } from './../utils/onMessage';
 
@@ -59,7 +60,7 @@ export async function connectionHandler (
 
         // If the recipient is connected send the message through the socket.
         if (recipientConnection) {
-          await sendMessage(message.data, recipientConnection);
+          await sendMessage(message.message, recipientConnection);
         } else {
           /**
            * @todo Store somewhere the messages to deliver them later
@@ -72,4 +73,6 @@ export async function connectionHandler (
       }
     }
   });
+
+  ws.on('close', () => closeHandler(user.id, clients));
 }
