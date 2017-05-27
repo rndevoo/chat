@@ -17,8 +17,8 @@ using [Docker](https://docker.com).
 It uses [RabbitMQ](https://www.rabbitmq.com) for inter-service communication
 and [ws](https://github.com/websockets/ws) for the WebSockets server.
 
-The tests are written with [Mocha](https://mochajs.org), [Chai](chaijs.com)
-(expect variant) and [Sinon](sinonjs.org).
+The tests are written with [Mocha](https://mochajs.org), [Chai](http://chaijs.com)
+(expect variant) and [Sinon](http://sinonjs.org).
 
 ## Installation
 
@@ -66,7 +66,7 @@ To learn more about Docker, [see their docs](https://docs.docker.com/engine/).
 ### Install System Requirements
 
 You'll need [Node](https://nodejs.org). And we use [Yarn](https://yarnpkg.com)
-instead of npm.
+instead of [npm](https://www.npmjs.com/).
 
 To install them, follow their guides:
 [for Node](https://nodjes.org/en/download/package-manager) and
@@ -74,13 +74,13 @@ To install them, follow their guides:
 
 ### Configure Environmental Variables
 
-Generate your local .env file:
+Generate your local `.env` file:
 
 ```shell
 $ yarn run gen_env_file
 ```
 
-Now that you have your local .env file, fill it!
+Now that you have your local `.env` file, fill it!
 
 ### Install App Dependencies
 
