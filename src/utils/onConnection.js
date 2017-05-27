@@ -8,8 +8,6 @@
 
 import uuid from 'uuid/v4';
 
-import { channel } from '../config/rabbitmq';
-
 /**
  * @name validateUser
  * @function
@@ -21,13 +19,14 @@ import { channel } from '../config/rabbitmq';
  *
  * @returns {Promise<Object>} Object containing verified user information.
  */
-export async function validateUser (ws: Object): Promise<Object> {
+export async function validateUser (
+  channel: Object,
+  ws: Object,
+): Promise<Object> {
   const authorizationHeader: string = ws.upgradeReq.headers.Authorization;
 
-  const ch = await channel;
-
   const queue = 'auth_validate';
-  const randomQueue: string = (await ch.assertQueue('', {
+  const replyTo: string = (await channel.assertQueue('', {
     exclusive: true,
   })).queue;
 
@@ -35,31 +34,27 @@ export async function validateUser (ws: Object): Promise<Object> {
   const corr: string = uuid();
 
   // Send the Authorization header to the queue.
-  ch.sendToQueue(queue, Buffer.from(authorizationHeader), {
+  channel.sendToQueue(queue, Buffer.from(authorizationHeader), {
     correlationId: corr,
-    replyTo: randomQueue,
+    replyTo,
   });
 
-  // Receive the response of the request.
-  const msg = await ch.consume(randomQueue);
+  return new Promise((resolve, reject) => {
+    // Receive the response of the request.
+    channel.consume(replyTo, (msg) => {
+      // Check if the correlation id is the one we care about.
+      if (msg.properties.correlationId === corr) {
+        const response = JSON.parse(msg.content.toString());
 
-  // Check if the correlation id is the one we care about.
-  if (msg.properties.correlationId !== corr) {
-    throw new Error('Correlation ID didn\'t match.');
-  }
+        // Check if the authorization header was valid.
+        if (!response.ok) {
+          reject('Authorization error.');
+        }
 
-  const response = JSON.parse(msg.content.toString());
-
-  // Check if the authorization header was valid.
-  if (!response.ok) {
-    throw new Error('Authorization error.');
-  }
-
-  // Add the user to the clients Map.
-  ws.clients.set(response.user.id, response);
-
-  // Response the user object.
-  return response.user;
+        resolve(response.user);
+      }
+    });
+  });
 }
 
 /**
@@ -73,32 +68,35 @@ export async function validateUser (ws: Object): Promise<Object> {
  *
  * @returns {Promise<Set<string>>} The set of ids of the allowed users.
  */
-export async function getAllowedUsers (userId: string): Promise<Set<string>> {
-  const ch = await channel;
+export async function getAllowedUsers (
+  channel: Object,
+  userId: string,
+): Promise<Set<string>> {
 
   const queue = 'users_matches';
   // Generate a random queue to reply to.
-  const randomQueue: string = (await ch.assertQueue('', { exclusive: true })).queue;
+  const replyTo: string = (await channel.assertQueue('', {
+    exclusive: true,
+  })).queue;
 
   // Create a correlation ID.
   const corr: string = uuid();
 
-  ch.sendToQueue(queue, Buffer.from(userId), {
+  channel.sendToQueue(queue, Buffer.from(userId), {
     correlationId: corr,
-    replyTo: randomQueue,
+    replyTo,
   });
 
   // Receive the response of the request.
-  const msg = await ch.consume(randomQueue);
+  return new Promise((resolve) => {
+    channel.consume(replyTo, (msg) => {
+      // Check if the correlation id is the one we care about.
+      if (msg.properties.correlationId === corr) {
+        const response = JSON.parse(msg.content.toString());
 
-  // Check if the correlation id is the one we care about.
-  if (msg.properties.correlationId !== corr) {
-    throw new Error('Correlation ID didn\'t match.');
-  }
-
-  const response = JSON.parse(msg.content.toString());
-
-  const allowedUsers = new Set(response.users);
-
-  return allowedUsers;
+        const allowedUsers = new Set(response.users);
+        resolve(allowedUsers);
+      }
+    });
+  });
 }

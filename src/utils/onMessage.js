@@ -13,14 +13,14 @@
  * @description
  * Verifies that the user is authorized to sending messages to the recipient.
  *
- * @param {string} to - The recipient's id.
  * @param {Set<string>} allowedUsers - The set of allowed users the sender is authorized to send messages to.
+ * @param {string} to - The recipient's id.
  *
  * @returns {Promise<boolean>} True if the sender is authorized. False otherwise.
  */
 export async function verifyRecipient (
-  to: string,
   allowedUsers: Set<string>,
+  to: string,
 ): Promise<boolean> {
   return allowedUsers.has(to);
 }
