@@ -16,6 +16,7 @@
   * Handles the close event. Removes the disconnected user from the list of
   * connected users.
   *
+  * @param {string} userId - The id of the user disconnected.
   * @param  {Map<string, Object>} clients - The Map of connected clients.
   */
  export async function closeHandler (
@@ -24,5 +25,6 @@
  ) {
    // Remove the user from the connected users.
    clients.delete(userId);
+
    logger.debug(`User with id: ${userId} went offline.`);
  }
