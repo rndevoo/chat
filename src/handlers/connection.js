@@ -27,15 +27,18 @@ import {
  * @description
  * Handles the connection event.
  *
+ * @param {Object} channel - The RabbitMQ channel.
  * @param {Object} ws - The WebSocket server object.
+ * @param {Map<string, Object>} clients - The connected WebSocket clients.
  */
 export async function connectionHandler (
+  channel: Object,
   ws: Object,
   clients: Map<string, Object>,
 ) {
   let user: Object;
   try {
-    user = await validateUser(ws, clients);
+    user = await validateUser(channel, ws);
   } catch (e) {
     /**
      * @todo communicate with the logging service to log this incident.
@@ -48,13 +51,13 @@ export async function connectionHandler (
   // Store the user WebSocket connection.
   clients.set(user.id, ws);
 
-  const allowedUsers: Set<string> = await getAllowedUsers(user.id);
+  const allowedUsers: Set<string> = await getAllowedUsers(channel, user.id);
 
   ws.on('message', async (message) => {
     if (message.type === 'message') {
       const recipientId: string = message.to;
       // Verify that the sender is allowed to send a message to this user.
-      if (await verifyRecipient(recipientId, allowedUsers)) {
+      if (await verifyRecipient(allowedUsers, recipientId)) {
         // Try to get the WebSocket connection of the recipient.
         const recipientConnection = clients.get(recipientId);
 
