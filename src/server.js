@@ -59,5 +59,5 @@ export async function start () {
   // Store all connected clients (WebSocket instances) here.
   let clients: Map<string, Object> = new Map();
 
-  wss.on('connection', (ws) => connectionHandler(channel, ws, clients));
+  wss.on('connection', (ws, req) => connectionHandler(channel, ws, req, clients));
 }
