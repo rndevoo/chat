@@ -15,15 +15,15 @@ import uuid from 'uuid/v4';
  * @description
  * Checks if the given authentication token is valid or not.
  *
- * @param {Object} ws - The WebSocket instance.
+ * @param {Object} upgradeReq - The upgrade HTTP request.
  *
  * @returns {Promise<Object>} Object containing verified user information.
  */
 export async function validateUser (
   channel: Object,
-  ws: Object,
+  upgradeReq: Object,
 ): Promise<Object> {
-  const authorizationHeader: string = ws.upgradeReq.headers.Authorization;
+  const authorizationHeader: string = upgradeReq.headers.Authorization;
 
   const queue = 'auth_validate';
   const replyTo: string = (await channel.assertQueue('', {

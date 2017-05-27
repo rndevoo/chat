@@ -28,17 +28,19 @@ import {
  * Handles the connection event.
  *
  * @param {Object} channel - The RabbitMQ channel.
+ * @param {Object} upgradeReq - The upgrade HTTP request.
  * @param {Object} ws - The WebSocket server object.
  * @param {Map<string, Object>} clients - The connected WebSocket clients.
  */
 export async function connectionHandler (
   channel: Object,
+  upgradeReq: Object,
   ws: Object,
   clients: Map<string, Object>,
 ) {
   let user: Object;
   try {
-    user = await validateUser(channel, ws);
+    user = await validateUser(channel, upgradeReq);
   } catch (e) {
     /**
      * @todo communicate with the logging service to log this incident.
