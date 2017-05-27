@@ -26,8 +26,8 @@ The tests are written with [Mocha](https://mochajs.org), [Chai](chaijs.com)
 
 You'll need Docker and Docker Compose installed in your machine.
 If you don't have them, follow their guides:
-(for Docker)[https://docs.docker.com/engine/installation] and
-(for Docker Compose)[https://docs.docker.com/compose/gettingstarted].
+[for Docker](https://docs.docker.com/engine/installation) and
+[for Docker Compose](https://docs.docker.com/compose/gettingstarted).
 
 Now, if it hasn't already been created, we need to create a custom
 Docker network so we run all of our services containers and the RabbitMQ
@@ -107,10 +107,6 @@ Run the tests:
 $ yarn test
 ```
 
-## Deploying to Production
-
-// TODO
-
 ## Other Services and API Gateway
 
 - [API Gateway](https://github.com/rndevoo/gateway)
@@ -118,4 +114,4 @@ $ yarn test
 
 ## License
 
-GPL-3
+[GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
