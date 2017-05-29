@@ -1,10 +1,7 @@
-// @flow
-
 /**
  * @overview
  * Helper function to use in the server's on connection event handler.
  */
-'use strict';
 
 import uuid from 'uuid/v4';
 

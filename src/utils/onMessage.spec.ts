@@ -2,7 +2,6 @@
  * @overview
  * Unit tests of the message event helper functions.
  */
-'use strict';
 
 import chai from 'chai';
 import sinon from 'sinon';

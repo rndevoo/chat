@@ -1,10 +1,7 @@
-// @flow
-
 /**
  * @overview
  * Helper functions to use in the server's on message event handler.
  */
-'use strict';
 
 /**
  * @name verifyRecipient

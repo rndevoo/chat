@@ -1,23 +1,15 @@
-// @flow
-
 /**
  * @overview
  * The microservice's main service.
  *
- * It's a WebSocket server. It handles the realtime communication of the app.
+ * It's a WebSocket server inside an AMQP connection.
+ * It handles the real-time communication of the app.
  *
- * In production, we start the server directly here, for the env variables are
- * set in the web service, e.g. Heroku.
- *
- * In development, we export the start function @see {@link start} and call it
- * there @see {@link index.js} after loading all environmental variables.
- *
- * @author Diego Stratta <strattadb@gmail>
+ * @author Diego Stratta <strattadb@gmail.com>
  * @license GPL-3.0
  */
-'use strict';
 
-import rabbitmq from 'amqplib';
+import amqplib from 'amqplib';
 import WebSocket from 'ws';
 
 import { connectionHandler } from './handlers/connection';
@@ -30,22 +22,15 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const RABBITMQ_SERVER_URL = process.env.RABBITMQ_SERVER_URL;
 
 /**
- * In development we want to load env variables before we start the server.
- */
-if (NODE_ENV === 'production') {
-  start();
-}
-
-/**
- * @name start
+ * @name main
  * @function
  *
  * @description
  * Just a wrapper for initializing and starting the server.
  */
-export async function start () {
+export async function main () {
   // Connect to the RabbitMQ server.
-  const conn = await rabbitmq.connect(RABBITMQ_SERVER_URL);
+  const conn = await amqplib.connect(RABBITMQ_SERVER_URL);
   // Crete the RabbitMQ channel.
   const channel = await conn.createChannel();
 
@@ -61,3 +46,5 @@ export async function start () {
 
   wss.on('connection', (ws, req) => connectionHandler(channel, ws, req, clients));
 }
+
+main();
