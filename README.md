@@ -1,5 +1,7 @@
 # rndevoo's Chat Microservice
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/rndevoo/chat.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/rndevoo/chat.svg?branch=master)](https://travis-ci.org/rndevoo/chat)
 [![CircleCI](https://circleci.com/gh/rndevoo/chat.svg?style=shield)](https://circleci.com/gh/rndevoo/chat)
 [![Coverage Status](https://coveralls.io/repos/github/rndevoo/chat/badge.svg?branch=master)](https://coveralls.io/github/rndevoo/chat?branch=master)
