@@ -3,7 +3,8 @@
  * Helper function to use in the server's on connection event handler.
  */
 
-import uuid from 'uuid/v4';
+import { Channel, Message } from 'amqplib';
+import { v4 as uuid } from 'uuid';
 
 /**
  * @name validateUser
@@ -17,13 +18,13 @@ import uuid from 'uuid/v4';
  * @returns {Promise<Object>} Object containing verified user information.
  */
 export async function validateUser (
-  channel: Object,
-  upgradeReq: Object,
-): Promise<Object> {
+  ch: Channel,
+  upgradeReq: any,
+): Promise<object> {
   const authorizationHeader: string = upgradeReq.headers.Authorization;
 
   const queue = 'auth_validate';
-  const replyTo: string = (await channel.assertQueue('', {
+  const replyTo: string = (await ch.assertQueue('', {
     exclusive: true,
   })).queue;
 
@@ -31,14 +32,14 @@ export async function validateUser (
   const corr: string = uuid();
 
   // Send the Authorization header to the queue.
-  channel.sendToQueue(queue, Buffer.from(authorizationHeader), {
+  ch.sendToQueue(queue, Buffer.from(authorizationHeader), {
     correlationId: corr,
     replyTo,
   });
 
   return new Promise((resolve, reject) => {
     // Receive the response of the request.
-    channel.consume(replyTo, (msg) => {
+    ch.consume(replyTo, (msg) => {
       // Check if the correlation id is the one we care about.
       if (msg.properties.correlationId === corr) {
         const response = JSON.parse(msg.content.toString());
@@ -60,40 +61,40 @@ export async function validateUser (
  *
  * @description
  * Returns the set of users the user is authorized to send messages to.
- *
- * @param {string} userId - The user's id.
- *
- * @returns {Promise<Set<string>>} The set of ids of the allowed users.
  */
 export async function getAllowedUsers (
-  channel: Object,
+  ch: Channel,
   userId: string,
 ): Promise<Set<string>> {
 
   const queue = 'users_matches';
   // Generate a random queue to reply to.
-  const replyTo: string = (await channel.assertQueue('', {
+  const replyTo: string = (await ch.assertQueue('', {
     exclusive: true,
   })).queue;
 
   // Create a correlation ID.
   const corr: string = uuid();
 
-  channel.sendToQueue(queue, Buffer.from(userId), {
+  ch.sendToQueue(queue, Buffer.from(userId), {
     correlationId: corr,
     replyTo,
   });
 
   // Receive the response of the request.
-  return new Promise((resolve) => {
-    channel.consume(replyTo, (msg) => {
+  const allowedUsersPromise: Promise<Set<string>> = new Promise((resolve) => {
+    ch.consume(replyTo, (msg: Message): void => {
       // Check if the correlation id is the one we care about.
       if (msg.properties.correlationId === corr) {
-        const response = JSON.parse(msg.content.toString());
+        const { users }: {
+          users: string[],
+        } = JSON.parse(msg.content.toString());
 
-        const allowedUsers = new Set(response.users);
+        const allowedUsers = new Set(users);
         resolve(allowedUsers);
       }
     });
   });
+
+  return allowedUsersPromise;
 }

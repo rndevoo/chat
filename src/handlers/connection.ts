@@ -1,10 +1,10 @@
-// @flow
-
 /**
  * @overview
  * The WebSocket server's connection event handler.
  */
-'use strict';
+
+import { IncomingMessage } from 'http';
+import { Channel } from 'amqplib';
 
 import logger from '../config/winston';
 
@@ -33,10 +33,10 @@ import {
  * @param {Map<string, Object>} clients - The connected WebSocket clients.
  */
 export async function connectionHandler (
-  channel: Object,
-  upgradeReq: Object,
-  ws: Object,
-  clients: Map<string, Object>,
+  channel: Channel,
+  ws: WebSocket,
+  upgradeReq: IncomingMessage,
+  clients: Map<string, WebSocket>,
 ) {
   let user: Object;
   try {
@@ -55,7 +55,7 @@ export async function connectionHandler (
 
   const allowedUsers: Set<string> = await getAllowedUsers(channel, user.id);
 
-  ws.on('message', async (message) => {
+  ws.addEventListener('message', async (message) => {
     if (message.type === 'message') {
       const recipientId: string = message.to;
       // Verify that the sender is allowed to send a message to this user.

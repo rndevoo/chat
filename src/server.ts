@@ -9,8 +9,8 @@
  * @license GPL-3.0
  */
 
-import amqplib from 'amqplib';
-import WebSocket from 'ws';
+import * as amqplib from 'amqplib';
+import * as WebSockets from 'ws';
 
 import { connectionHandler } from './handlers/connection';
 
@@ -35,16 +35,18 @@ export async function main () {
   const channel = await conn.createChannel();
 
   // Create the WebSocket server instance and start listening.
-  const wss = new WebSocket.Server({
+  const wss = new WebSockets.Server({
     port: PORT,
   }, () => {
     logger.info(`Chat microservice's server running in ${NODE_ENV} mode on port ${PORT}`);
   });
 
   // Store all connected clients (WebSocket instances) here.
-  let clients: Map<string, Object> = new Map();
+  let clients: Map<string, WebSocket> = new Map();
 
-  wss.on('connection', (ws, req) => connectionHandler(channel, ws, req, clients));
+  wss.on('connection', (ws, req) => {
+    connectionHandler(channel, ws, req, clients);
+  });
 }
 
 main();

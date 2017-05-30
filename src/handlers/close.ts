@@ -1,10 +1,7 @@
-// @flow
-
 /**
  * @overview
  * The WebSocket server's close event handler.
  */
- 'use strict';
 
  import logger from '../config/winston';
 
@@ -15,14 +12,11 @@
   * @description
   * Handles the close event. Removes the disconnected user from the list of
   * connected users.
-  *
-  * @param {string} userId - The id of the user disconnected.
-  * @param  {Map<string, Object>} clients - The Map of connected clients.
   */
  export async function closeHandler (
    userId: string,
    clients: Map<string, Object>,
- ) {
+ ): Promise<void> {
    // Remove the user from the connected users.
    clients.delete(userId);
 
