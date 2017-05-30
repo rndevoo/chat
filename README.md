@@ -12,8 +12,8 @@
 This is rndevoo's chat microservice. It handles the real-time chat within the
 app.
 
-It is written in JavaScript using [Flow](https://flow.org). Fully containerized
-using [Docker](https://docker.com).
+It is written in [TypeScript](https://www.typescriptlang.org).
+Fully containerized using [Docker](https://docker.com).
 
 It uses [RabbitMQ](https://www.rabbitmq.com) for inter-service communication
 and [ws](https://github.com/websockets/ws) for the WebSockets server.
@@ -22,6 +22,22 @@ The tests are written with [Mocha](https://mochajs.org), [Chai](http://chaijs.co
 (expect variant) and [Sinon](http://sinonjs.org).
 
 ## Installation
+
+### Getting the Code
+
+Ideally, you'd want all rndevoo's services inside a folder,
+so create a `rndevoo` folder somewhere:
+
+```bash
+$ mdkir -p ~/projects/rndevoo
+$ cd ~/projects/rndevoo         # Change directory to the newly created.
+```
+
+Now clone the repository with [Git](https://git-scm.com):
+
+```bash
+$ git clone https://github.com/rndevoo/chat
+```
 
 ### Common Configuration to All Services
 
@@ -32,9 +48,9 @@ If you don't have them, follow their guides:
 
 Now, if it hasn't already been created, we need to create a custom
 Docker network so we run all of our services containers and the RabbitMQ
-server in the same network and can communicate with each other.
+server in the same network and they can communicate with each other.
 
-So, check if the network has been created:
+So, check if the network already exists:
 
 ```bash
 $ docker network ls | grep rndevoo_network
@@ -47,7 +63,7 @@ $ docker network create --driver bridge rndevoo_network
 ```
 
 Now we need to have a RabbitMQ server running in a docker container in order
-to let the inter-service communication happen:
+to let the inter-service communication happen.
 
 First check if it hasn't been created already:
 
@@ -62,12 +78,16 @@ $ docker run -d --hostname rabbitmq --network rndevoo_network --name rabbit \
 -p 15672:15672 -p 5672:5672 rabbitmq:3-management
 ```
 
-To learn more about Docker, [see their docs](https://docs.docker.com/engine/).
+If you want to access RabbitMQ's management panel,
+go to `http://localhost:15672`.
+
+To learn more about Docker [see their docs](https://docs.docker.com/engine/).
 
 ### Install System Requirements
 
-You'll need [Node](https://nodejs.org). And we use [Yarn](https://yarnpkg.com)
-instead of [npm](https://www.npmjs.com/).
+You don't need [Node](https://nodejs.org) or [Yarn](https://yarnpkg.com),
+because the Docker container has them, but it may be useful
+to have them installed in your machine.
 
 To install them, follow their guides:
 [for Node](https://nodjes.org/en/download/package-manager) and
@@ -91,14 +111,32 @@ $ yarn install
 
 ## Spinning Up the Development Container
 
-Run the container in the background:
+Build and start the development container:
 
 ```bash
-$ docker-compose up -d
+$ docker-compose up
+```
+
+In order to open a terminal session from inside the `web` Docker container run:
+
+```bash
+$ docker-compose exec web /bin/bash
 ```
 
 To learn more about Docker Compose
 [see their docs](https://docs.docker.com/compose/gettingstarted).
+
+## Directory Layout
+
+```bash
+├── scripts/       # Useful scripts.
+├── src/           # The source code. Contains unit tests.
+│   ├── config/    # Configuration files of some modules (e.g. Winston).
+│   ├── handlers/  # WebSocket server event handlers.
+│   ├── utils/     # Utility functions.
+│   └── server.ts  # The main server.
+├── test/          # Integration tests.
+```
 
 ## Testing
 
