@@ -34,7 +34,7 @@
     "@types/sinon-chai": "^2.7.27",
     "@types/uuid": "^2.0.29",
     "@types/winston": "^2.3.2",
-    "@types/ws": "^0.0.41",
+    "@types/ws": "^0.0.42",
     "chai": "^4.0.0",
     "chai-as-promised": "^6.0.0",
     "coveralls": "^2.13.1",
