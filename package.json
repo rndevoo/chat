@@ -38,7 +38,7 @@
     "chai": "^4.0.0",
     "chai-as-promised": "^7.0.0",
     "coveralls": "^2.13.1",
-    "mocha": "^3.3.0",
+    "mocha": "^4.0.1",
     "nodemon": "^1.11.0",
     "nyc": "^11.0.1",
     "rimraf": "^2.6.1",
